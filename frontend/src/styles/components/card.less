@@ -1,0 +1,44 @@
+@import "../variables.less";
+
+.card {
+  border-radius: @radius;
+  border: 1px solid @border;
+  background: @surface;
+  box-shadow: @shadow;
+
+  padding: 22px;
+
+  .title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 900;
+    color: @text;
+    letter-spacing: -0.02em;
+  }
+
+  .subtitle {
+    margin: 8px 0 16px;
+    color: @muted;
+    line-height: 1.5;
+  }
+
+  .hint {
+    font-size: 13px;
+    color: @muted;
+    margin-top: 10px;
+    line-height: 1.45;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #f3f4f6;
+    border: 1px solid @border;
+    font-size: 12px;
+    font-weight: 700;
+    color: @text;
+  }
+}

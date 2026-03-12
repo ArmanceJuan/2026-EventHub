@@ -1,0 +1,158 @@
+@baseUrl=http://localhost:8000/api
+@eventId=1d3f2d70-2322-4007-a028-e779709be294
+@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQyZDdhNzdlLTIyNjktNDE0OC05ZDgyLTViNzU5YzE3NWJiZCIsInJvbGUiOiJPUkdBTklaRVIiLCJpYXQiOjE3NzA5Njk2NDMsImV4cCI6MTc3MTU3NDQ0M30.376bg91j19HtfCImapr0Ql7hHWfyi1ImimLGJChnyPY
+
+@a2fUrl=http://localhost:8000/a2f
+
+# Auth
+## User
+### Register user
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "hello2@test.com",
+  "password": "test123",
+  "role": "ORGANIZER"
+}
+
+### Login user
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "hello@test.com",
+  "password": "test123"
+}
+
+# Events
+## Create
+### Create Event - success
+POST {{baseUrl}}/events
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Imagine Dragons",
+  "description": "Nouvelle description",
+  "startDate": "2031-01-01T10:00:00.000Z",
+  "venueId": "venue-99",
+  "capacity": 150,
+  "price": 25,
+  "organizerId": "user-1",
+  "categoryId": "cat-1",
+  "imageUrl": "https://example.com/new-image.jpg"
+}
+
+### Create Event - missing title
+POST {{baseUrl}}/events
+Content-Type: application/json
+
+{
+  "title": "",
+  "description": "Sans titre",
+  "startDate": "2030-01-01T10:00:00.000Z",
+  "venueId": "venue-1",
+  "capacity": 100,
+  "price": 20,
+  "organizerId": "user-1",
+  "categoryId": "cat-1"
+}
+
+### Create Event - past date
+POST {{baseUrl}}/events
+Content-Type: application/json
+
+{
+  "title": "Event passé",
+  "description": "Date invalide",
+  "startDate": "2020-01-01T10:00:00.000Z",
+  "venueId": "venue-1",
+  "capacity": 100,
+  "price": 20,
+  "organizerId": "user-1",
+  "categoryId": "cat-1"
+}
+
+## Get
+### Get all events
+GET {{baseUrl}}/events
+Authorization: Bearer {{token}}
+
+### Get event by id
+GET {{baseUrl}}/events/{{eventId}}
+Authorization: Bearer {{token}}
+
+## Update
+### Update event (PUT) - remplace <ID>
+PUT {{baseUrl}}/events/{{eventId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Imagine Dragons",
+  "description": "Mise à jour",
+  "startDate": "2031-01-01T10:00:00.000Z",
+  "venueId": "venue-99",
+  "capacity": 150,
+  "price": 25,
+  "organizerId": "user-1",
+  "categoryId": "cat-1",
+  "imageUrl": "https://example.com/new-image.jpg"
+}
+
+## Delete
+### Delete event (DELETE) - supprime <ID>
+DELETE {{baseUrl}}/events/{{eventId}}
+Authorization: Bearer {{token}}
+
+# A2F / OTP
+## 1) Récupérer le QR Code (auth requis)
+### Get QRCode (success)
+GET {{a2fUrl}}/qrcode
+Authorization: Bearer {{token}}
+
+## 2) Activer la 2FA (auth requis + rate limit 4/min)
+# ⚠️ Remplace "DJBVEA3QGMZHY4ZE" par le secret reçu au step 1
+# ⚠️ Remplace "123456" par le code affiché dans ton appli OTP
+### Enable A2F (success)
+POST {{a2fUrl}}/enable
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "secret": "DJBVEA3QGMZHY4ZE",
+  "code": "123456"
+}
+
+### Enable A2F - missing fields
+POST {{a2fUrl}}/enable
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "secret": "",
+  "code": ""
+}
+
+### Enable A2F - invalid code
+POST {{a2fUrl}}/enable
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "secret": "SECRET_FROM_QRCODE",
+  "code": "000000"
+}
+
+## 3) Tester le rate limit
+# Lance cette requête 5 fois en moins d'une minute : la 5e doit renvoyer 429
+### Enable A2F - rate limit test
+POST {{a2fUrl}}/enable
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "secret": "SECRET_FROM_QRCODE",
+  "code": "123456"
+}

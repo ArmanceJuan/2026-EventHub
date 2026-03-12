@@ -1,0 +1,80 @@
+@import "../variables.less";
+
+.authScreen {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+
+  background-image: url("../../../public/img/background.jpeg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  display: grid;
+  place-items: center;
+
+  z-index: 0;
+}
+
+/* wrapper au-dessus de l’overlay */
+.authScreen__content {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* Carte glass */
+.card.card--glass {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  width: min(420px, 92%);
+}
+
+/* Textes en mode clair sur fond dark */
+.card.card--glass .title,
+.card.card--glass .subtitle,
+.card.card--glass label,
+.card.card--glass .hint {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.card.card--glass .subtitle,
+.card.card--glass .hint {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+/* Inputs version glass */
+.card.card--glass input {
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.card.card--glass input::placeholder {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.card.card--glass input:focus {
+  border-color: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 0 0 4px rgba(227, 144, 50, 0.866);
+}
+
+/* Bouton primary plus "premium" */
+.card.card--glass .btnPrimary {
+  box-shadow: 0 14px 24px rgba(227, 144, 50, 0.866);
+}
+
+/* Bouton ghost adapté au glass */
+.card.card--glass .btnGhost {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.card.card--glass .btnGhost:hover {
+  background: rgba(255, 255, 255, 0.16);
+}

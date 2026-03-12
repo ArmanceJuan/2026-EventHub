@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  PARTICIPANT
+  ORGANIZER
+  ADMIN
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(ORGANIZER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  otp_secret String?
+  otp_enable Boolean @default(false)
+
+  a2fBackupCode A2FBackupCode?
+
+  events Event[] @relation("OrganizerEvents")
+}
+
+model Event {
+  id          String   @id
+  title       String
+  description String?
+  startDate   DateTime
+  venueId     String
+  capacity    Int
+  price       Int?
+  organizerId String
+  categoryId  String
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  organizer User @relation("OrganizerEvents", fields: [organizerId], references: [id])
+}
+
+model A2FBackupCode {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  codesHash Json
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
