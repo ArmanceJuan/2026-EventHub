@@ -12,6 +12,11 @@ export class AuthController {
     try {
       const body = req.body as RegisterDTO;
 
+      console.log("[AuthController][register] Incoming request", {
+        email: body.email,
+        role: body.role,
+      });
+
       if (!body.email || !body.password) {
         return res.jsonError("Email and password are required", 400);
       }
@@ -45,6 +50,13 @@ export class AuthController {
     try {
       const body = req.body as LoginDTO;
 
+      console.log("[AuthController][login] Incoming request", {
+        email: body.email,
+        hasPassword: !!body.password,
+        hasOtpCode: !!body.otpCode,
+        hasBackupCode: !!body.backupCode,
+      });
+
       if (!body.email || !body.password) {
         return res.jsonError("Email and password are required", 400);
       }
@@ -54,11 +66,17 @@ export class AuthController {
       });
 
       if (!user) {
+        console.log("[AuthController][login] User not found", {
+          email: body.email,
+        });
         return res.jsonError("Invalid credentials", 401);
       }
 
       const ok = await verifyPassword(body.password, user.passwordHash);
       if (!ok) {
+        console.log("[AuthController][login] Invalid password", {
+          email: body.email,
+        });
         return res.jsonError("Invalid credentials", 401);
       }
 
@@ -105,6 +123,9 @@ export class AuthController {
           }
 
           if (matchIndex === -1) {
+            console.log("[AuthController][login] Invalid backup code", {
+              userId: user.id,
+            });
             return res.jsonError("Code de secours invalide", 401);
           }
 
@@ -127,7 +148,57 @@ export class AuthController {
         expiresIn: "7d",
       });
 
-      return res.jsonSuccess({ token }, 200);
+      console.log("[AuthController][login] Login success", {
+        userId: payload.id,
+        email: payload.email,
+        role: payload.role,
+      });
+
+      return res
+        .cookie("accessToken", token, {
+          httpOnly: true,
+          secure: true,
+          sameSite: "lax",
+          maxAge: 7 * 24 * 60 * 60 * 1000,
+        })
+        .jsonSuccess({ user: payload }, 200);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async me(req: Request, res: Response, next: NextFunction) {
+    try {
+      const user = req.user;
+      if (!user) {
+        console.log("[AuthController][me] No user on request");
+        return res.jsonError("Unauthorized", 401);
+      }
+      console.log("[AuthController][me] Current user", {
+        userId: user.id,
+        email: user.email,
+        role: user.role,
+      });
+      return res.jsonSuccess({ user }, 200);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async logout(req: Request, res: Response, next: NextFunction) {
+    try {
+      console.log("[AuthController][logout] Logging out user", {
+        userId: req.user?.id,
+        email: req.user?.email,
+      });
+      res
+        .cookie("accessToken", "", {
+          httpOnly: true,
+          secure: true,
+          sameSite: "lax",
+          maxAge: 0,
+        })
+        .jsonSuccess({ message: "Logged out" }, 200);
     } catch (err) {
       next(err);
     }

@@ -1,6 +1,7 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import { useSelector } from "react-redux";
 import { axiosWithAuthApi } from "../../../services/axios-instance-api.service";
-import { useAuth } from "../../store/auth-context.provider";
+import { AppState } from "../../store/store";
 
 type QrCode = {
   image: string;
@@ -35,7 +36,7 @@ function getApiErrorMessage(err: any): string {
 }
 
 export function OtpSetup() {
-  const { token } = useAuth();
+  const { isAuthenticated } = useSelector((state: AppState) => state.auth);
 
   const [qr, setQr] = useState<QrCode | null>(null);
   const [code, setCode] = useState("");
@@ -47,12 +48,8 @@ export function OtpSetup() {
   const [loadingQr, setLoadingQr] = useState(false);
   const [loadingEnable, setLoadingEnable] = useState(false);
 
-  const authHeader = useMemo(
-    () => ({ Authorization: `Bearer ${token}` }),
-    [token],
-  );
 
-  if (!token) return <div className="card">Connecte-toi d’abord.</div>;
+  if (!isAuthenticated) return <div className="card">Connecte-toi d’abord.</div>;
 
   const downloadBackupCodes = (codes: string[]) => {
     const content =
@@ -79,9 +76,7 @@ export function OtpSetup() {
     setLoadingQr(true);
 
     try {
-      const res = await axiosWithAuthApi.get<QrCodeResponse>("/a2f/qrcode", {
-        headers: authHeader,
-      });
+      const res = await axiosWithAuthApi.get<QrCodeResponse>("/a2f/qrcode");
 
       // ✅ ton backend: { success, data: { qrCode } }
       setQr(res.data.data.qrCode);
@@ -107,7 +102,6 @@ export function OtpSetup() {
       const res = await axiosWithAuthApi.post<EnableResponse>(
         "/a2f/enable",
         { secret: qr.secret, code: code.trim() },
-        { headers: authHeader },
       );
 
       // ✅ ton backend: { success, data: { message, backupCodes } }

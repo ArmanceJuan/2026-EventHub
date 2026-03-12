@@ -1,6 +1,7 @@
 import { Router } from "express";
 import rateLimit from "express-rate-limit";
 import { AuthController } from "../controllers/auth.controller";
+import { authenticationMiddleware } from "../middlewares/authentication.middleware";
 
 const router = Router();
 const controller = new AuthController();
@@ -76,4 +77,28 @@ router.post("/auth/register", controller.register.bind(controller));
 
 router.post("/auth/login", otpLimiter, controller.login.bind(controller));
 
+/**
+ * @swagger
+ * /auth/me:
+ *   get:
+ *     summary: Récupérer les informations de l'utilisateur connecté
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: Informations de l'utilisateur
+ *       401:
+ *         description: Non authentifié
+ */
+
+router.get(
+  "/auth/me",
+  authenticationMiddleware,
+  controller.me.bind(controller),
+);
+
+router.post(
+  "/auth/logout",
+  authenticationMiddleware,
+  controller.logout.bind(controller),
+);
 export default router;

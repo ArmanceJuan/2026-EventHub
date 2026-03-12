@@ -1,18 +1,18 @@
 import { Routes, Route, Navigate, NavLink } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { Layout } from "./modules/app/components/layout.component";
 import { AppWrapper } from "./modules/app/components/app-wrapper.component";
-
+import { AppState, useAppDispatch } from "./modules/store/store";
 import { LoginForm } from "./modules/user/components/login-form.component";
 import { RegisterForm } from "./modules/user/components/register-form.component";
 import { ProfilePage } from "./modules/user/components/profile-page.component";
 import { OtpSetup } from "./modules/user/components/otp-setup.component";
-
-import { useAuth } from "./modules/store/auth-context.provider";
+import { logoutThunk } from "./modules/store/auth.actions";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { currentUser } = useAuth();
+  const { isAuthenticated } = useSelector((state: AppState) => state.auth);
 
-  if (!currentUser) {
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
@@ -20,14 +20,15 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function Navbar() {
-  const { currentUser, logout } = useAuth();
+  const { isAuthenticated } = useSelector((state: AppState) => state.auth);
+  const dispatch = useAppDispatch();
 
   return (
     <div className="nav">
       <div className="brand">EventHub</div>
 
       <div className="links">
-        {!currentUser ? (
+        {!isAuthenticated ? (
           <>
             <NavLink
               to="/login"
@@ -57,8 +58,12 @@ function Navbar() {
 
       <div className="spacer" />
 
-      {currentUser ? (
-        <button className="btn btnGhost" type="button" onClick={logout}>
+      {isAuthenticated ? (
+        <button
+          className="btn btnGhost"
+          type="button"
+          onClick={() => dispatch(logoutThunk())}
+        >
           Déconnexion
         </button>
       ) : null}

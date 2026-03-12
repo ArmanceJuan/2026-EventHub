@@ -1,5 +1,6 @@
 import "dotenv/config";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import swaggerUi from "swagger-ui-express";
 import swaggerJSDoc from "swagger-jsdoc";
 import helmet from "helmet";
@@ -17,10 +18,11 @@ const app = express();
 const PORT = process.env.PORT || 8000;
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(
   cors({
     origin: "http://localhost:5173",
-    credentials: false,
+    credentials: true,
   }),
 );
 app.use(

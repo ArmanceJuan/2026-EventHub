@@ -12,28 +12,30 @@ declare module "express-serve-static-core" {
 export const authenticationMiddleware = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
-    const authorization = req.headers.authorization;
-    if (!authorization) {
-      return res.jsonError("Missing authorization header", 403);
-    }
-
-    const token = extractToken(authorization);
+    const token = req.cookies?.accessToken;
     if (!token) {
-      return res.jsonError("Invalid authorization header", 403);
+      console.log("[authenticationMiddleware] Missing access token cookie");
+      return res.jsonError("Missing access token", 403);
     }
 
     const payload = jwt.verify(
       token,
-      getEnvVariable("JWT_SECRET")
+      getEnvVariable("JWT_SECRET"),
     ) as UserPayload;
 
-    req.user = payload;
+    console.log("[authenticationMiddleware] Token verified", {
+      userId: payload.id,
+      email: payload.email,
+      role: payload.role,
+    });
 
+    req.user = payload;
     next();
   } catch (error) {
+    console.error("[authenticationMiddleware] Error while verifying token", error);
     next(error);
   }
 };

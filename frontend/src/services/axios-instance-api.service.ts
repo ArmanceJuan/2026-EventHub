@@ -7,7 +7,7 @@ const createAxiosInstance = (options: AxiosRequestConfig = {}) =>
   axios.create({
     baseURL,
     timeout: 8000,
-    withCredentials: false,
+    withCredentials: true,
     headers: {
       "Content-Type": "application/json",
       ...(options.headers || {}),

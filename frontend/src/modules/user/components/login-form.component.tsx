@@ -1,10 +1,15 @@
 import { FormEvent, useMemo, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../../store/auth-context.provider";
+import { AppState, useAppDispatch } from "../../store/store";
+import { useSelector } from "react-redux";
+import { loginThunk } from "../../store/auth.actions";
 
 export function LoginForm() {
   const navigate = useNavigate();
-  const { login, currentUser } = useAuth();
+  const dispatch = useAppDispatch();
+  const { isAuthenticated, user } = useSelector(
+    (state: AppState) => state.auth,
+  );
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,12 +27,12 @@ export function LoginForm() {
     return otpCode.trim().length > 0 || backupCode.trim().length > 0;
   }, [email, password, needOtp, otpCode, backupCode, isLoading]);
 
-  if (currentUser) {
+  if (isAuthenticated) {
     return (
       <div className="card">
         <h2 className="title">Déjà connecté ✅</h2>
         <p className="subtitle">
-          Bonjour <b>{currentUser.email}</b>.
+          Bonjour <b>{user.email}</b>.
         </p>
         <div className="form">
           <div className="actions">
@@ -49,13 +54,21 @@ export function LoginForm() {
     setError(null);
     setIsLoading(true);
 
+    console.log("[LoginForm] Submit", {
+      email: email.trim(),
+      hasOtp: !!otpCode.trim(),
+      hasBackup: !!backupCode.trim(),
+    });
+
     try {
       const otp = otpCode.trim() || undefined;
       const backup = otp ? undefined : backupCode.trim() || undefined;
 
-      await login(email.trim(), password, otp, backup);
+      await dispatch(loginThunk(email.trim(), password, otp, backup));
+      console.log("[LoginForm] Login thunk resolved, navigating to /profile");
       navigate("/profile");
     } catch (err: any) {
+      console.error("[LoginForm] Login error", err);
       const msg =
         err?.response?.data?.error?.message ||
         err?.response?.data?.message ||

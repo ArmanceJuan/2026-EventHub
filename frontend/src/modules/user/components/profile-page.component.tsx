@@ -1,11 +1,14 @@
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../store/auth-context.provider";
+import { useSelector } from "react-redux";
+import { AppState, useAppDispatch } from "../../store/store";
+import { logoutThunk } from "../../store/auth.actions";
 
 export function ProfilePage() {
   const navigate = useNavigate();
-  const { currentUser, logout } = useAuth();
+  const dispatch = useAppDispatch();
+  const { isAuthenticated, user } = useSelector((state: AppState) => state.auth);
 
-  if (!currentUser) {
+  if (!isAuthenticated || !user?.email) {
     return (
       <div className="card">
         <h2 className="title">Accès refusé</h2>
@@ -33,7 +36,7 @@ export function ProfilePage() {
       <div className="form">
         <div className="field">
           <label>Email</label>
-          <input value={currentUser.email} readOnly />
+          <input value={user.email} readOnly />
         </div>
 
         <div className="field">
@@ -58,7 +61,7 @@ export function ProfilePage() {
             className="btn btnGhost"
             type="button"
             onClick={() => {
-              logout();
+              dispatch(logoutThunk());
               navigate("/login");
             }}
           >
