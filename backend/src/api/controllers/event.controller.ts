@@ -15,7 +15,7 @@ export class EventController {
     private readonly getAllEventsUseCase: GetAllEventsUseCase,
     private readonly getEventByIdUseCase: GetEventByIdUseCase,
     private readonly updateEventUseCase: UpdateEventUseCase,
-    private readonly deleteEventUseCase: DeleteEventUseCase
+    private readonly deleteEventUseCase: DeleteEventUseCase,
   ) {}
 
   async create(req: Request, res: Response, next: NextFunction) {
@@ -40,9 +40,9 @@ export class EventController {
 
   async getAll(req: Request, res: Response, next: NextFunction) {
     try {
-      const events = await this.getAllEventsUseCase.execute();
-
-      return res.jsonSuccess(events, 200);
+      const lastId = req.query.lastId as string | undefined;
+      const result = await this.getAllEventsUseCase.execute(lastId);
+      return res.jsonSuccess(result, 200);
     } catch (err) {
       next(err);
     }
@@ -84,7 +84,7 @@ export class EventController {
       const updated = await this.updateEventUseCase.execute(
         idParam,
         { ...dto, startDate: new Date(dto.startDate) },
-        requesterId
+        requesterId,
       );
 
       return res.jsonSuccess(updated, 200);

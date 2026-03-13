@@ -41,11 +41,23 @@ export class EventRepositoryDatabase implements EventRepositoryInterface {
     return this.toDomain(created);
   }
 
-  async findAll(): Promise<Event[]> {
+  async findAll(
+    lastId?: string,
+    limit = 5,
+  ): Promise<{ data: Event[]; hasMore: boolean }> {
     const events = await prisma.event.findMany({
-      orderBy: { createdAt: "desc" },
+      take: limit + 1,
+      ...(lastId && {
+        skip: 1,
+        cursor: { id: lastId },
+      }),
+      orderBy: { id: "asc" },
     });
-    return events.map((e) => this.toDomain(e));
+
+    const hasMore = events.length > limit;
+    const data = hasMore ? events.slice(0, limit) : events;
+
+    return { data: data.map(this.toDomain), hasMore };
   }
 
   async findById(id: string): Promise<Event | null> {

@@ -14,35 +14,22 @@ import { fetchEvents } from "../events/events.api";
 
 export function AnalyticsDashboard() {
   const { data, status, error } = useDashboardData();
+
   const [events, setEvents] = useState<Event[]>([]);
   const [eventsError, setEventsError] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
       try {
-        const evts = await fetchEvents();
-        setEvents(evts);
+        const result = await fetchEvents();
+        setEvents(result.data);
       } catch (e: any) {
-        setEventsError(
-          e?.message ?? "Impossible de charger les événements pour le dashboard.",
-        );
+        setEventsError(e?.message ?? "Impossible de charger les événements.");
       }
     })();
   }, []);
 
-  const chartData = data.map((row) => {
-    const slug = row._id.split("/").filter(Boolean).pop();
-    const matchingEvent = slug
-      ? events.find((evt) => evt.id === slug)
-      : undefined;
-
-    return {
-      ...row,
-      label: matchingEvent?.title ?? row._id,
-    };
-  });
-
-  if (status === "loading") {
+  if (status === "idle" || status === "loading") {
     return <div>Chargement des statistiques...</div>;
   }
 
@@ -53,6 +40,14 @@ export function AnalyticsDashboard() {
   if (eventsError) {
     return <div className="error">{eventsError}</div>;
   }
+
+  const chartData = data.map((row) => {
+    const slug = row._id.split("/").filter(Boolean).pop();
+    const matchingEvent = slug
+      ? events.find((evt) => evt.id === slug)
+      : undefined;
+    return { ...row, label: matchingEvent?.title ?? row._id };
+  });
 
   if (!data.length) {
     return (
@@ -70,7 +65,6 @@ export function AnalyticsDashboard() {
     <div className="card">
       <h2 className="title">Dashboard Analytics</h2>
       <p className="subtitle">Pages événement les plus consultées</p>
-
       <div style={{ width: "100%", height: 400 }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
@@ -81,10 +75,7 @@ export function AnalyticsDashboard() {
             <XAxis dataKey="label" tick={{ fontSize: 12 }} />
             <YAxis allowDecimals={false} />
             <Tooltip
-              contentStyle={{
-                borderRadius: 8,
-                border: "1px solid #E2E8F0",
-              }}
+              contentStyle={{ borderRadius: 8, border: "1px solid #E2E8F0" }}
               labelStyle={{ fontWeight: "bold" }}
             />
             <Bar dataKey="count" fill="#319795" radius={[6, 6, 0, 0]} />

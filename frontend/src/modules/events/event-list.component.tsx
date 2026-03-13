@@ -13,7 +13,7 @@ export function EventList() {
     (async () => {
       try {
         const data = await fetchEvents();
-        setEvents(data);
+        setEvents(data.data);
       } catch (e: any) {
         setError(e?.message ?? "Impossible de charger les événements.");
       } finally {

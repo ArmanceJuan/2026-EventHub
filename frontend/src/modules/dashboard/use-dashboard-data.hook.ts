@@ -10,6 +10,7 @@ export const useDashboardData = () => {
   );
 
   useEffect(() => {
+    console.log("Dispatching fetchViewsPerPage..."); // ← ajouter
     dispatch(fetchViewsPerPage());
   }, [dispatch]);
 

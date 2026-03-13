@@ -9,11 +9,12 @@ import { RegisterForm } from "./modules/user/components/register-form.component"
 import { ProfilePage } from "./modules/user/components/profile-page.component";
 import { OtpSetup } from "./modules/user/components/otp-setup.component";
 import { logoutThunk } from "./modules/store/auth.actions";
+import { AnalyticsDashboard } from "./modules/dashboard/analytics-dashboard.component";
+
 const EventDetail = lazy(
   () => import("./modules/events/event-detail.component"),
 );
 const EventList = lazy(() => import("./modules/events/event-list.component"));
-import { AnalyticsDashboard } from "./modules/dashboard/analytics-dashboard.component";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useSelector((state: AppState) => state.auth);

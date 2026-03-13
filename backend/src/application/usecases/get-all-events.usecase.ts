@@ -4,7 +4,10 @@ import { EventRepositoryInterface } from "../../domain/interfaces/event-reposito
 export class GetAllEventsUseCase {
   constructor(private readonly repository: EventRepositoryInterface) {}
 
-  async execute(): Promise<Event[]> {
-    return this.repository.findAll();
+  async execute(
+    lastId?: string,
+    limit = 5,
+  ): Promise<{ data: Event[]; hasMore: boolean }> {
+    return this.repository.findAll(lastId, limit);
   }
 }
