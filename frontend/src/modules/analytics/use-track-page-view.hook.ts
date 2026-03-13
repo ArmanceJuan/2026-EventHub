@@ -11,7 +11,7 @@ export const useTrackPageView = (page: string) => {
     dispatch(
       sendAnalyticsAction({
         eventName: "pageview",
-        userId: user?.id ?? null,
+        userId: user?.id ?? "",
         page,
         timestamp: new Date().toISOString(),
       }),

@@ -37,16 +37,18 @@ export function EventDetail() {
     return <div className="error">{error ?? "Événement introuvable."}</div>;
 
   const onBuyTicket = () => {
-    alert("Achat de billet simulé !");
     if (!id) return;
+
     dispatch(
       sendAnalyticsAction({
         eventName: "buy-ticket",
-        userId: user?.id ?? null,
+        userId: user?.id ?? "",
         page: `/events/${id}`,
         timestamp: new Date().toISOString(),
       }),
     );
+
+    alert("Achat de billet simulé !");
   };
 
   return (

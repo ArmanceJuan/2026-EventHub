@@ -9,4 +9,4 @@ const router = Router();
 router.post("/", recordAnalytics);
 router.get("/", getAnalytics);
 
-export default router;
+export { router as analyticsRouter };

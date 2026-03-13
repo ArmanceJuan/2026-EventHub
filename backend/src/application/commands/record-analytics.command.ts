@@ -1,14 +1,22 @@
 import { IAnalyticsRepository } from "../../domain/interfaces/analytics-repository.interface";
 
 export class RecordAnalyticsCommand {
-  constructor(private readonly analyticsRepository: IAnalyticsRepository) {}
+  private analyticsRepository: IAnalyticsRepository;
+
+  constructor({
+    analyticsRepository,
+  }: {
+    analyticsRepository: IAnalyticsRepository;
+  }) {
+    this.analyticsRepository = analyticsRepository;
+  }
 
   async execute(event: {
     eventName: string;
     userId: string;
     page: string;
     timestamp: Date;
-  }): Promise<void> {
+  }) {
     await this.analyticsRepository.recordAnalytics(event);
   }
 }

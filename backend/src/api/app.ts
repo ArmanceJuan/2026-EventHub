@@ -12,7 +12,7 @@ import eventRoutes from "./routes/event.route";
 import authRoutes from "./routes/auth.route";
 import { errorHandlerMiddleware } from "./middlewares/error.middleware";
 import { a2fRouter } from "./routes/a2f.routes";
-import analyticsRoutes from "./routes/analytics.routes";
+import { analyticsRouter } from "./routes/analytics.routes";
 
 const app = express();
 
@@ -50,8 +50,7 @@ app.use(jsonApiResponseMiddleware);
 app.use("/api", authRoutes);
 app.use("/api", eventRoutes);
 app.use("/a2f", a2fRouter);
-app.use("/api", analyticsRoutes);
-
+app.use("/api/analytics", analyticsRouter);
 app.use(errorHandlerMiddleware);
 
 export default app;
