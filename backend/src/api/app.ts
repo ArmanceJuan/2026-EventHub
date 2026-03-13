@@ -11,11 +11,10 @@ import { jsonApiResponseMiddleware } from "./middlewares/json-api-response.middl
 import eventRoutes from "./routes/event.route";
 import authRoutes from "./routes/auth.route";
 import { errorHandlerMiddleware } from "./middlewares/error.middleware";
-
 import { a2fRouter } from "./routes/a2f.routes";
+import analyticsRoutes from "./routes/analytics.routes";
 
 const app = express();
-const PORT = process.env.PORT || 8000;
 
 app.use(express.json());
 app.use(cookieParser());
@@ -50,11 +49,9 @@ app.use(jsonApiResponseMiddleware);
 
 app.use("/api", authRoutes);
 app.use("/api", eventRoutes);
-
 app.use("/a2f", a2fRouter);
+app.use("/api", analyticsRoutes);
 
 app.use(errorHandlerMiddleware);
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+export default app;

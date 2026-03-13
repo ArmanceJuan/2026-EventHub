@@ -3,10 +3,14 @@ import { useDispatch } from "react-redux";
 import type { Dependencies } from "./dependencies";
 import authReducer from "./auth.slice";
 import userReducer from "./user.slice";
+import analyticsReducer from "../analytics/analytics.slice";
+import dashboardReducer from "../dashboard/dashboard.slice";
 
 const reducers = combineReducers({
   auth: authReducer,
   user: userReducer,
+  analytics: analyticsReducer,
+  dashboard: dashboardReducer,
 });
 export type AppStore = ReturnType<typeof createStore>;
 export type AppState = ReturnType<typeof reducers>;

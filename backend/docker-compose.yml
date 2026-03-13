@@ -14,5 +14,14 @@ services:
     volumes:
       - eventhub_pgdata:/var/lib/postgresql/data
 
+  mongo:
+    image: mongo:latest
+    container_name: eventhub_mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: analytics
+    ports:
+      - "27017:27017"
+
 volumes:
   eventhub_pgdata:

@@ -8,6 +8,9 @@ import { RegisterForm } from "./modules/user/components/register-form.component"
 import { ProfilePage } from "./modules/user/components/profile-page.component";
 import { OtpSetup } from "./modules/user/components/otp-setup.component";
 import { logoutThunk } from "./modules/store/auth.actions";
+import { EventDetail } from "./modules/events/event-detail.component";
+import { EventList } from "./modules/events/event-list.component";
+import { AnalyticsDashboard } from "./modules/dashboard/analytics-dashboard.component";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useSelector((state: AppState) => state.auth);
@@ -43,6 +46,12 @@ function Navbar() {
             >
               Inscription
             </NavLink>
+            <NavLink
+              to="/events"
+              className={({ isActive }) => `link ${isActive ? "active" : ""}`}
+            >
+              Événements
+            </NavLink>
           </>
         ) : (
           <>
@@ -51,6 +60,18 @@ function Navbar() {
               className={({ isActive }) => `link ${isActive ? "active" : ""}`}
             >
               Profil
+            </NavLink>
+            <NavLink
+              to="/events"
+              className={({ isActive }) => `link ${isActive ? "active" : ""}`}
+            >
+              Événements
+            </NavLink>
+            <NavLink
+              to="/dashboard"
+              className={({ isActive }) => `link ${isActive ? "active" : ""}`}
+            >
+              Dashboard
             </NavLink>
           </>
         )}
@@ -89,6 +110,8 @@ export default function App() {
               {/* Auth */}
               <Route path="/login" element={<LoginForm />} />
               <Route path="/register" element={<RegisterForm />} />
+              <Route path="/events" element={<EventList />} />
+              <Route path="/events/:id" element={<EventDetail />} />
 
               {/* Protected */}
               <Route
@@ -105,6 +128,15 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <OtpSetup />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <AnalyticsDashboard />
                   </ProtectedRoute>
                 }
               />
