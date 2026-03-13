@@ -73,7 +73,6 @@ export const enableA2F = async (
     const codesHash = await Promise.all(
       backupCodes.map((c) => bcrypt.hash(c, 10)),
     );
-    console.log(Object.keys(prisma));
 
     await prisma.a2FBackupCode.upsert({
       where: { userId },

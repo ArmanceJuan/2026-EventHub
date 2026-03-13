@@ -16,11 +16,6 @@ export const loginThunk =
   (email: string, password: string, otpCode?: string, backupCode?: string) =>
   async (dispatch: AppDispatch, getState: AppGetState) => {
     try {
-      console.log("[auth.actions][loginThunk] Start", {
-        email,
-        hasOtpCode: !!otpCode,
-        hasBackupCode: !!backupCode,
-      });
       dispatch(loginLoading());
 
       const payload: {
@@ -38,11 +33,6 @@ export const loginThunk =
         payload,
       );
 
-      console.log("[auth.actions][loginThunk] Response received", {
-        success: response.data?.success,
-        status: response.status,
-      });
-
       if (!response.data.success) {
         throw new Error(response.data.error?.message || "Erreur inconnue");
       }
@@ -59,7 +49,6 @@ export const loginThunk =
         role: userFromApi.role,
       };
 
-      console.log("[auth.actions][loginThunk] Login success", user);
       dispatch(loginSuccess(user));
     } catch (error: any) {
       const message =
@@ -75,13 +64,7 @@ export const loginThunk =
 export const hydrateAuthFromMe =
   () => async (dispatch: AppDispatch, getState: AppGetState) => {
     try {
-      console.log("[auth.actions][hydrateAuthFromMe] Start");
       const response = await axiosWithAuthApi.get("/api/auth/me");
-
-      console.log("[auth.actions][hydrateAuthFromMe] Response received", {
-        success: response.data?.success,
-        status: response.status,
-      });
 
       if (!response.data.success) {
         return;
@@ -99,10 +82,8 @@ export const hydrateAuthFromMe =
         role: userFromApi.role,
       };
 
-      console.log("[auth.actions][hydrateAuthFromMe] Hydration success", user);
       dispatch(hydrateAuth(user));
     } catch {
-      console.warn("[auth.actions][hydrateAuthFromMe] Failed, dispatching logout");
       dispatch(logout());
     }
   };
@@ -110,15 +91,9 @@ export const hydrateAuthFromMe =
 export const logoutThunk =
   () => async (dispatch: AppDispatch, getState: AppGetState) => {
     try {
-      console.log("[auth.actions][logoutThunk] Start");
       const response = await axiosWithAuthApi.post("/api/auth/logout");
-      console.log("[auth.actions][logoutThunk] Response received", {
-        success: response.data?.success,
-        status: response.status,
-      });
       dispatch(logout());
     } catch {
-      console.warn("[auth.actions][logoutThunk] Request failed, forcing logout");
       dispatch(logout());
     }
   };

@@ -54,21 +54,13 @@ export function LoginForm() {
     setError(null);
     setIsLoading(true);
 
-    console.log("[LoginForm] Submit", {
-      email: email.trim(),
-      hasOtp: !!otpCode.trim(),
-      hasBackup: !!backupCode.trim(),
-    });
-
     try {
       const otp = otpCode.trim() || undefined;
       const backup = otp ? undefined : backupCode.trim() || undefined;
 
       await dispatch(loginThunk(email.trim(), password, otp, backup));
-      console.log("[LoginForm] Login thunk resolved, navigating to /profile");
       navigate("/profile");
     } catch (err: any) {
-      console.error("[LoginForm] Login error", err);
       const msg =
         err?.response?.data?.error?.message ||
         err?.response?.data?.message ||

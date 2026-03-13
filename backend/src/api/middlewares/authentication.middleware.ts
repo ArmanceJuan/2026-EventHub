@@ -17,7 +17,6 @@ export const authenticationMiddleware = async (
   try {
     const token = req.cookies?.accessToken;
     if (!token) {
-      console.log("[authenticationMiddleware] Missing access token cookie");
       return res.jsonError("Missing access token", 403);
     }
 
@@ -26,16 +25,13 @@ export const authenticationMiddleware = async (
       getEnvVariable("JWT_SECRET"),
     ) as UserPayload;
 
-    console.log("[authenticationMiddleware] Token verified", {
-      userId: payload.id,
-      email: payload.email,
-      role: payload.role,
-    });
-
     req.user = payload;
     next();
   } catch (error) {
-    console.error("[authenticationMiddleware] Error while verifying token", error);
+    console.error(
+      "[authenticationMiddleware] Error while verifying token",
+      error,
+    );
     next(error);
   }
 };

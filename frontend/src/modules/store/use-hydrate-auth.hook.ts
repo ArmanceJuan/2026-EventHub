@@ -6,7 +6,6 @@ export const useHydrateAuth = () => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    console.log("[useHydrateAuth] Dispatching hydrateAuthFromMe");
     dispatch(hydrateAuthFromMe());
   }, [dispatch]);
 };

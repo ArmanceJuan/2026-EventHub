@@ -17,8 +17,6 @@ async function main() {
     },
   });
 
-  console.log("Seed OK: orga@test.com / test123");
-
   const baseDate = new Date("2030-01-01T10:00:00.000Z");
 
   const eventsData = [
@@ -136,8 +134,6 @@ async function main() {
     })),
     skipDuplicates: true,
   });
-
-  console.log(`Seed OK: ${allEvents.length} events créés.`);
 }
 
 main()
