@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate, NavLink } from "react-router-dom";
+import { lazy, Suspense } from "react";
 import { useSelector } from "react-redux";
 import { Layout } from "./modules/app/components/layout.component";
 import { AppWrapper } from "./modules/app/components/app-wrapper.component";
@@ -8,8 +9,10 @@ import { RegisterForm } from "./modules/user/components/register-form.component"
 import { ProfilePage } from "./modules/user/components/profile-page.component";
 import { OtpSetup } from "./modules/user/components/otp-setup.component";
 import { logoutThunk } from "./modules/store/auth.actions";
-import { EventDetail } from "./modules/events/event-detail.component";
-import { EventList } from "./modules/events/event-list.component";
+const EventDetail = lazy(
+  () => import("./modules/events/event-detail.component"),
+);
+const EventList = lazy(() => import("./modules/events/event-list.component"));
 import { AnalyticsDashboard } from "./modules/dashboard/analytics-dashboard.component";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -110,8 +113,22 @@ export default function App() {
               {/* Auth */}
               <Route path="/login" element={<LoginForm />} />
               <Route path="/register" element={<RegisterForm />} />
-              <Route path="/events" element={<EventList />} />
-              <Route path="/events/:id" element={<EventDetail />} />
+              <Route
+                path="/events"
+                element={
+                  <Suspense fallback={<div>Chargement des événements...</div>}>
+                    <EventList />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/events/:id"
+                element={
+                  <Suspense fallback={<div>Chargement de l'événement...</div>}>
+                    <EventDetail />
+                  </Suspense>
+                }
+              />
 
               {/* Protected */}
               <Route

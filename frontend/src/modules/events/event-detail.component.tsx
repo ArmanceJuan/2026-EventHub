@@ -88,3 +88,5 @@ export function EventDetail() {
     </div>
   );
 }
+
+export default EventDetail;

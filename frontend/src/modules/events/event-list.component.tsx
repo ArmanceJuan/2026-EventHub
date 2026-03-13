@@ -7,6 +7,7 @@ export function EventList() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [visibleCount, setVisibleCount] = useState(5);
 
   useEffect(() => {
     (async () => {
@@ -24,11 +25,14 @@ export function EventList() {
   if (loading) return <div>Chargement des événements...</div>;
   if (error) return <div className="error">{error}</div>;
 
+  const visibleEvents = events.slice(0, visibleCount);
+  const hasMore = visibleCount < events.length;
+
   return (
     <div className="card">
       <h2 className="title">Événements à venir</h2>
       <ul className="event-list">
-        {events.map((ev) => (
+        {visibleEvents.map((ev) => (
           <li key={ev.id} className="event-list__item">
             <h3>{ev.title}</h3>
             <p>{ev.description}</p>
@@ -41,6 +45,19 @@ export function EventList() {
           </li>
         ))}
       </ul>
+      {hasMore && (
+        <div className="actions" style={{ marginTop: 16 }}>
+          <button
+            className="btn btnPrimary"
+            type="button"
+            onClick={() => setVisibleCount((prev) => prev + 5)}
+          >
+            Charger plus
+          </button>
+        </div>
+      )}
     </div>
   );
 }
+
+export default EventList;
