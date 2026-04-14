@@ -6,7 +6,8 @@
     "moduleResolution": "bundler",
     "strict": true,
     "isolatedModules": true,
-    "noEmit": true
+    "noEmit": true,
+    "types": ["vite/client"]
   },
   "include": ["src", "jest.setup.ts", "jest.config.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]

@@ -1,44 +1,120 @@
 @import "../variables.less";
 
 .card {
-  border-radius: @radius;
-  border: 1px solid @border;
   background: @surface;
+  border: 1px solid @border;
+  border-radius: @radiusLg;
+  padding: 28px 32px;
   box-shadow: @shadow;
+  transition: @transition;
 
-  padding: 22px;
+  .card--full {
+    border-radius: @radiusLg;
+    padding: 32px;
+    background: @surface;
+    border: 1px solid @border;
+    box-shadow: @shadow;
+    width: 100%;
+  }
 
   .title {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 900;
+    font-family: @fontDisplay;
+    font-size: 26px;
+    font-weight: 700;
     color: @text;
     letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin-bottom: 6px;
   }
 
   .subtitle {
-    margin: 8px 0 16px;
-    color: @muted;
-    line-height: 1.5;
+    font-size: 14px;
+    color: @textMuted;
+    line-height: 1.6;
+    margin-bottom: 22px;
   }
 
   .hint {
     font-size: 13px;
-    color: @muted;
+    color: @textFaint;
+    line-height: 1.5;
     margin-top: 10px;
-    line-height: 1.45;
   }
 
   .pill {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 10px;
-    border-radius: 999px;
-    background: #f3f4f6;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 99px;
+    background: @bg2;
     border: 1px solid @border;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 600;
+    color: @textMuted;
+  }
+}
+
+// ─── Event List ──────────────────────────────────────────────────────────────
+.event-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.event-list__item {
+  padding: 20px 20px 20px 24px;
+  border-radius: @radius;
+  border: 1px solid @border;
+  background: @surface2;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: @transition;
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 10px;
+    bottom: 10px;
+    width: 3px;
+    border-radius: 99px;
+    background: @border2;
+    transition: @transition;
+  }
+
+  &:hover {
+    border-color: @accent;
+    box-shadow: @shadow;
+    transform: translateY(-2px);
+    background: @surface;
+
+    &::before {
+      background: @primary;
+    }
+  }
+
+  h3 {
+    font-size: 15px;
+    font-weight: 600;
     color: @text;
+  }
+
+  p {
+    font-size: 13px;
+    color: @textMuted;
+  }
+
+  .btn {
+    align-self: flex-start;
+    margin-top: auto; // pousse le bouton en bas de la carte
+    padding-top: 12px;
   }
 }

@@ -102,67 +102,65 @@ export default function App() {
       <Layout>
         <Navbar />
 
-        <div className="container fade-in">
+        <div className="container">
           {/* MENU */}
 
           {/* CONTENT */}
-          <div className="page" style={{ gridTemplateColumns: "1fr" }}>
-            <Routes>
-              {/* Default */}
-              <Route path="/" element={<Navigate to="/login" replace />} />
+          <Routes>
+            {/* Default */}
+            <Route path="/" element={<Navigate to="/login" replace />} />
 
-              {/* Auth */}
-              <Route path="/login" element={<LoginForm />} />
-              <Route path="/register" element={<RegisterForm />} />
-              <Route
-                path="/events"
-                element={
-                  <Suspense fallback={<div>Chargement des événements...</div>}>
-                    <EventList />
-                  </Suspense>
-                }
-              />
-              <Route
-                path="/events/:id"
-                element={
-                  <Suspense fallback={<div>Chargement de l'événement...</div>}>
-                    <EventDetail />
-                  </Suspense>
-                }
-              />
+            {/* Auth */}
+            <Route path="/login" element={<LoginForm />} />
+            <Route path="/register" element={<RegisterForm />} />
+            <Route
+              path="/events"
+              element={
+                <Suspense fallback={<div>Chargement des événements...</div>}>
+                  <EventList />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/events/:id"
+              element={
+                <Suspense fallback={<div>Chargement de l'événement...</div>}>
+                  <EventDetail />
+                </Suspense>
+              }
+            />
 
-              {/* Protected */}
-              <Route
-                path="/profile"
-                element={
-                  <ProtectedRoute>
-                    <ProfilePage />
-                  </ProtectedRoute>
-                }
-              />
+            {/* Protected */}
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              }
+            />
 
-              <Route
-                path="/profile/security"
-                element={
-                  <ProtectedRoute>
-                    <OtpSetup />
-                  </ProtectedRoute>
-                }
-              />
+            <Route
+              path="/profile/security"
+              element={
+                <ProtectedRoute>
+                  <OtpSetup />
+                </ProtectedRoute>
+              }
+            />
 
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <AnalyticsDashboard />
-                  </ProtectedRoute>
-                }
-              />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <AnalyticsDashboard />
+                </ProtectedRoute>
+              }
+            />
 
-              {/* Fallback */}
-              <Route path="*" element={<Navigate to="/login" replace />} />
-            </Routes>
-          </div>
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          </Routes>
         </div>
       </Layout>
     </AppWrapper>

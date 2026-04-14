@@ -29,7 +29,7 @@ export function EventList() {
   const hasMore = visibleCount < events.length;
 
   return (
-    <div className="card">
+    <div className="card card--full">
       <h2 className="title">Événements à venir</h2>
       <ul className="event-list">
         {visibleEvents.map((ev) => (

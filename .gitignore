@@ -1,2 +1,4 @@
 backend/dist
 frontend/dist
+.env
+backend/.env
