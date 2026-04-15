@@ -29,18 +29,18 @@ describe("DeleteEventUseCase", () => {
 
     await repository.save(event);
 
-    await expect(useCase.execute("evt-1")).resolves.toBeUndefined();
+    await expect(useCase.execute("evt-1", "user-1")).resolves.toBeUndefined();
 
     const found = await repository.findById("evt-1");
     expect(found).toBeNull();
   });
 
   it("échoue si l'id est vide", async () => {
-    await expect(useCase.execute("")).rejects.toThrow("Event id is required");
+    await expect(useCase.execute("", "user-1")).rejects.toThrow("Event not found");
   });
 
   it("échoue si l'event n'existe pas", async () => {
-    await expect(useCase.execute("unknown")).rejects.toThrow("Event not found");
+    await expect(useCase.execute("unknown", "user-1")).rejects.toThrow("Event not found");
   });
 
   it("échoue si l'utilisateur n'est pas l'organisateur (forbidden)", async () => {

@@ -29,17 +29,20 @@ describe("UpdateEventUseCase (PUT)", () => {
 
     await repository.save(existing);
 
-    const updated = await useCase.execute("evt-1", {
+    const updated = await useCase.execute(
+      "evt-1",
+      {
       title: "New title",
       description: "New desc",
       startDate: futureDate(),
       venueId: "venue-2",
       capacity: 50,
       price: 0,
-      organizerId: "user-1",
       categoryId: "cat-2",
       imageUrl: "https://example.com/new.jpg",
-    });
+      },
+      "user-1"
+    );
 
     expect(updated.id).toBe("evt-1");
     expect(updated.title).toBe("New title");
@@ -49,33 +52,39 @@ describe("UpdateEventUseCase (PUT)", () => {
 
   it("échoue si l'id est vide", async () => {
     await expect(
-      useCase.execute("", {
-        title: "X",
-        description: "X",
-        startDate: futureDate(),
-        venueId: "venue-1",
-        capacity: 1,
-        price: 0,
-        organizerId: "user-1",
-        categoryId: "cat-1",
-        imageUrl: "x",
-      })
-    ).rejects.toThrow("Event id is required");
+      useCase.execute(
+        "",
+        {
+          title: "X",
+          description: "X",
+          startDate: futureDate(),
+          venueId: "venue-1",
+          capacity: 1,
+          price: 0,
+          categoryId: "cat-1",
+          imageUrl: "x",
+        },
+        "user-1"
+      )
+    ).rejects.toThrow("Event not found");
   });
 
   it("échoue si l'event n'existe pas", async () => {
     await expect(
-      useCase.execute("unknown", {
-        title: "X",
-        description: "X",
-        startDate: futureDate(),
-        venueId: "venue-1",
-        capacity: 1,
-        price: 0,
-        organizerId: "user-1",
-        categoryId: "cat-1",
-        imageUrl: "x",
-      })
+      useCase.execute(
+        "unknown",
+        {
+          title: "X",
+          description: "X",
+          startDate: futureDate(),
+          venueId: "venue-1",
+          capacity: 1,
+          price: 0,
+          categoryId: "cat-1",
+          imageUrl: "x",
+        },
+        "user-1"
+      )
     ).rejects.toThrow("Event not found");
   });
 
@@ -96,17 +105,20 @@ describe("UpdateEventUseCase (PUT)", () => {
     await repository.save(existing);
 
     await expect(
-      useCase.execute("evt-1", {
-        title: "New title",
-        description: "New desc",
-        startDate: new Date(Date.now() - 86400000),
-        venueId: "venue-2",
-        capacity: 50,
-        price: 0,
-        organizerId: "user-1",
-        categoryId: "cat-2",
-        imageUrl: "x",
-      })
+      useCase.execute(
+        "evt-1",
+        {
+          title: "New title",
+          description: "New desc",
+          startDate: new Date(Date.now() - 86400000),
+          venueId: "venue-2",
+          capacity: 50,
+          price: 0,
+          categoryId: "cat-2",
+          imageUrl: "x",
+        },
+        "user-1"
+      )
     ).rejects.toThrow();
   });
 

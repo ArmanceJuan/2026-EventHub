@@ -9,8 +9,25 @@ export class InMemoryEventRepository implements EventRepositoryInterface {
     return event;
   }
 
-  async findAll(): Promise<Event[]> {
-    return this.events;
+  async findAll(
+    lastId?: string,
+    limit = 5
+  ): Promise<{ data: Event[]; hasMore: boolean }> {
+    const sorted = [...this.events].sort((a, b) => a.id.localeCompare(b.id));
+
+    let startIndex = 0;
+    if (lastId) {
+      const cursorIndex = sorted.findIndex((event) => event.id === lastId);
+      startIndex = cursorIndex >= 0 ? cursorIndex + 1 : 0;
+    }
+
+    const sliced = sorted.slice(startIndex, startIndex + limit + 1);
+    const hasMore = sliced.length > limit;
+
+    return {
+      data: hasMore ? sliced.slice(0, limit) : sliced,
+      hasMore,
+    };
   }
 
   async findById(id: string): Promise<Event | null> {
