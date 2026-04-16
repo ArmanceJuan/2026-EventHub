@@ -7,7 +7,8 @@ pipeline {
 
   environment {
     IMAGE_TAG = "${env.BUILD_NUMBER}"
-    REPO_DIR = "/home/ubuntu/2026-EventHub"
+    SONAR_TOKEN = credentials('sonarqube-token')
+    REPO_DIR = "/home/ubuntu/2026-EventHub/backend"
   }
 
   stages {
@@ -26,6 +27,14 @@ pipeline {
               sh 'npm ci'
             }
           }
+        }
+      }
+    }
+
+    stage('Lint') {
+      steps {
+        dir('backend') {
+          sh 'npx eslint src/ || true'
         }
       }
     }
@@ -53,18 +62,7 @@ pipeline {
       steps {
         dir('backend') {
           withSonarQubeEnv('SonarQube') {
-            withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
-              sh """
-                ${tool('SonarScanner')}/bin/sonar-scanner \
-                  -Dsonar.projectKey=eventhub-backend \
-                  -Dsonar.projectName=eventhub-backend \
-                  -Dsonar.sources=src \
-                  -Dsonar.tests=src/tests \
-                  -Dsonar.test.inclusions=src/tests/** \
-                  -Dsonar.typescript.tsconfigPath=tsconfig.json \
-                  -Dsonar.token=$SONAR_TOKEN
-              """
-            }
+            sh "${tool('SonarScanner')}/bin/sonar-scanner"
           }
         }
       }
@@ -88,7 +86,10 @@ pipeline {
     stage('Docker Push') {
       when {
         expression {
-          return env.GIT_BRANCH == null || env.GIT_BRANCH == 'main' || env.GIT_BRANCH.endsWith('/main')
+          return env.BRANCH_NAME == 'main' ||
+                 env.GIT_BRANCH == 'main' ||
+                 env.GIT_BRANCH == 'origin/main' ||
+                 (env.GIT_BRANCH != null && env.GIT_BRANCH.endsWith('/main'))
         }
       }
       steps {
@@ -116,20 +117,25 @@ pipeline {
     stage('Deploy') {
       when {
         expression {
-          return env.GIT_BRANCH == null || env.GIT_BRANCH == 'main' || env.GIT_BRANCH.endsWith('/main')
+          return env.BRANCH_NAME == 'main' ||
+                 env.GIT_BRANCH == 'main' ||
+                 env.GIT_BRANCH == 'origin/main' ||
+                 (env.GIT_BRANCH != null && env.GIT_BRANCH.endsWith('/main'))
         }
       }
       steps {
         sh '''
           set -e
-          if [ ! -d "$REPO_DIR/.git" ]; then
-            git clone https://github.com/ArmanceJuan/2026-EventHub.git "$REPO_DIR"
+          REPO_ROOT="$(dirname "$REPO_DIR")"
+          if [ ! -d "$REPO_ROOT/.git" ]; then
+            git clone https://github.com/ArmanceJuan/2026-EventHub.git "$REPO_ROOT"
           fi
-          cd "$REPO_DIR"
+          cd "$REPO_ROOT"
           git fetch origin main
           git reset --hard origin/main
 
-          cd backend
+          cd "$REPO_DIR"
+          docker compose down || true
           docker compose up -d --build
           docker compose ps
         '''
