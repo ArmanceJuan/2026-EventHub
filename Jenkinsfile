@@ -8,11 +8,10 @@ pipeline {
   environment {
     IMAGE_TAG = "${env.BUILD_NUMBER}"
     SONAR_TOKEN = credentials('sonarqube-token')
-    REPO_DIR = "/home/ubuntu/2026-EventHub/backend"
   }
 
   stages {
-    stage('Install') {
+    stage('Install Dependencies') {
       parallel {
         stage('Backend Deps') {
           steps {
@@ -44,7 +43,7 @@ pipeline {
         stage('Backend Unit Tests') {
           steps {
             dir('backend') {
-              sh 'npm run test:unit'
+              sh 'npm run test:unit -- --coverage'
             }
           }
         }
@@ -54,6 +53,14 @@ pipeline {
               sh 'npm run build'
             }
           }
+        }
+      }
+    }
+
+    stage('Build Backend') {
+      steps {
+        dir('backend') {
+          sh 'npm run build'
         }
       }
     }
@@ -78,19 +85,14 @@ pipeline {
 
     stage('Docker Build') {
       steps {
-        sh 'docker build -t eventhub-backend:${IMAGE_TAG} ./backend'
-        sh 'docker build -t eventhub-frontend:${IMAGE_TAG} ./frontend'
+        sh "docker build -t eventhub-backend:${IMAGE_TAG} ./backend"
+        sh "docker build -t eventhub-frontend:${IMAGE_TAG} ./frontend"
       }
     }
 
     stage('Docker Push') {
       when {
-        expression {
-          return env.BRANCH_NAME == 'main' ||
-                 env.GIT_BRANCH == 'main' ||
-                 env.GIT_BRANCH == 'origin/main' ||
-                 (env.GIT_BRANCH != null && env.GIT_BRANCH.endsWith('/main'))
-        }
+        branch 'main'
       }
       steps {
         withCredentials([usernamePassword(
@@ -99,16 +101,11 @@ pipeline {
           passwordVariable: 'DOCKER_PASS'
         )]) {
           sh '''
-            set -e
-            echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
             docker tag eventhub-backend:${IMAGE_TAG} ${DOCKER_USER}/eventhub-backend:${IMAGE_TAG}
             docker tag eventhub-frontend:${IMAGE_TAG} ${DOCKER_USER}/eventhub-frontend:${IMAGE_TAG}
-            docker tag eventhub-backend:${IMAGE_TAG} ${DOCKER_USER}/eventhub-backend:latest
-            docker tag eventhub-frontend:${IMAGE_TAG} ${DOCKER_USER}/eventhub-frontend:latest
             docker push ${DOCKER_USER}/eventhub-backend:${IMAGE_TAG}
             docker push ${DOCKER_USER}/eventhub-frontend:${IMAGE_TAG}
-            docker push ${DOCKER_USER}/eventhub-backend:latest
-            docker push ${DOCKER_USER}/eventhub-frontend:latest
           '''
         }
       }
@@ -116,33 +113,26 @@ pipeline {
 
     stage('Deploy') {
       when {
-        expression {
-          return env.BRANCH_NAME == 'main' ||
-                 env.GIT_BRANCH == 'main' ||
-                 env.GIT_BRANCH == 'origin/main' ||
-                 (env.GIT_BRANCH != null && env.GIT_BRANCH.endsWith('/main'))
-        }
+        branch 'main'
       }
       steps {
-        sh '''
-          set -e
-          docker run --rm \
-            -v /var/run/docker.sock:/var/run/docker.sock \
-            -v /home/ubuntu/2026-EventHub:/repo \
-            -w /repo/backend \
-            docker:cli \
-            sh -c "docker compose down || true && docker compose up -d --build && docker compose ps"
-        '''
+        dir('backend') {
+          sh '''
+            docker compose down || true
+            docker compose up -d --build
+            docker compose ps
+          '''
+        }
       }
     }
   }
 
   post {
     success {
-      echo 'Deploiement reussi !'
+      echo 'Déploiement réussi !'
     }
     failure {
-      echo 'Le pipeline a echoue.'
+      echo 'Le pipeline a échoué.'
     }
     always {
       sh 'docker system prune -f || true'
