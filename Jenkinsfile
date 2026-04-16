@@ -1,13 +1,11 @@
 pipeline {
   agent any
 
-  stages {
-    stage('Checkout') {
-      steps {
-        checkout scm
-      }
-    }
+  tools {
+    nodejs 'Node-20'
+  }
 
+  stages {
     stage('Backend Unit Tests') {
       steps {
         dir('backend') {
