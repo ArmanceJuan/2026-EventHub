@@ -126,18 +126,12 @@ pipeline {
       steps {
         sh '''
           set -e
-          REPO_ROOT="$(dirname "$REPO_DIR")"
-          if [ ! -d "$REPO_ROOT/.git" ]; then
-            git clone https://github.com/ArmanceJuan/2026-EventHub.git "$REPO_ROOT"
-          fi
-          cd "$REPO_ROOT"
-          git fetch origin main
-          git reset --hard origin/main
-
-          cd "$REPO_DIR"
-          docker compose down || true
-          docker compose up -d --build
-          docker compose ps
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -v /home/ubuntu/2026-EventHub:/repo \
+            -w /repo/backend \
+            docker:cli \
+            sh -c "docker compose down || true && docker compose up -d --build && docker compose ps"
         '''
       }
     }
