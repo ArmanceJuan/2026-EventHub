@@ -1,6 +1,8 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import { AuthProvider, useAuth } from "../../store/auth-context.provider";
+import { Provider } from "react-redux";
+import { MemoryRouter } from "react-router-dom";
+import { createStore } from "../../store/store";
 import { ProfilePage } from "../components/profile-page.component";
 
 const mockUser = {
@@ -12,13 +14,17 @@ const mockUser = {
 };
 
 describe("ProfilePage", () => {
+  const store = createStore({ dependencies: {} });
+
   it("affiche un message si l'utilisateur n'est pas connecté", () => {
     render(
-      <AuthProvider>
-        <ProfilePage />
-      </AuthProvider>
+      <Provider store={store}>
+        <MemoryRouter>
+          <ProfilePage />
+        </MemoryRouter>
+      </Provider>
     );
-    expect(screen.getByText(/veuillez vous connecter/i)).toBeInTheDocument();
+    expect(screen.getByText(/tu dois être connecté/i)).toBeInTheDocument();
   });
 
   // it("affiche les informations de l'utilisateur connecté et les boutons", () => {

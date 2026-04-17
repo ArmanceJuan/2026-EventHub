@@ -14,6 +14,8 @@ const config = {
 
   moduleNameMapper: {
     "\\.(css|less|scss|sass)$": "identity-obj-proxy",
+    "^.+/services/axios-instance-api\\.service$":
+      "<rootDir>/src/tests/mocks/axios-instance-api.service.mock.ts",
   },
 
   transform: {
