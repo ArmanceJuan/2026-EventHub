@@ -92,7 +92,7 @@ export function LoginForm() {
     <div className="authScreen">
       <div className="authScreen__content">
         <div className="card card--glass">
-          <h2 className="title">Connexion</h2>
+          <h2 className="title">Connexion Avril 2026</h2>
           <p className="subtitle">
             Connectez-vous pour accéder à votre espace.
           </p>
