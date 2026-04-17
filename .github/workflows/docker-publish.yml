@@ -14,7 +14,8 @@ jobs:
         working-directory: ./backend
         run: |
           npm ci
-          npm test
+          npx prisma generate
+          npm run test:unit
 
       - name: Install and test frontend
         working-directory: ./frontend
