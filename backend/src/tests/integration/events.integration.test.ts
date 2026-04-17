@@ -1,4 +1,5 @@
 import request from "supertest";
+import jwt from "jsonwebtoken";
 import app from "../../api/app";
 import { prisma } from "../../prisma/client";
 
@@ -29,26 +30,35 @@ const baseEventPayload = () => ({
   imageUrl: "https://example.com/image.jpg",
 });
 
-const registerAndLogin = async (role: "ORGANIZER" | "PARTICIPANT") => {
+const registerAndAuthenticate = async (role: "ORGANIZER" | "PARTICIPANT") => {
   const email = `${role.toLowerCase()}-${Date.now()}-${Math.random()}@test.com`;
   const password = "Test1234!";
 
-  await request(app).post("/api/auth/register").send({
+  const registerResponse = await request(app).post("/api/auth/register").send({
     email,
     password,
     role,
   });
 
-  const loginResponse = await request(app).post("/api/auth/login").send({
-    email,
-    password,
+  expect(registerResponse.status).toBe(201);
+
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: { id: true, email: true, role: true },
   });
 
-  expect(loginResponse.status).toBe(200);
-  expect(loginResponse.headers["set-cookie"]).toBeDefined();
+  if (!user) {
+    throw new Error(`User ${email} not found after register`);
+  }
+
+  const token = jwt.sign(
+    { id: user.id, email: user.email, role: user.role },
+    process.env.JWT_SECRET || "test-secret",
+    { expiresIn: "7d" }
+  );
 
   return {
-    cookie: loginResponse.headers["set-cookie"],
+    cookie: [`accessToken=${token}`],
   };
 };
 
@@ -70,7 +80,7 @@ describe("Events integration", () => {
   });
 
   it("GET /api/events/:id returns 200 for an existing event", async () => {
-    const { cookie } = await registerAndLogin("ORGANIZER");
+    const { cookie } = await registerAndAuthenticate("ORGANIZER");
 
     const createResponse = await request(app)
       .post("/api/events")
@@ -93,7 +103,7 @@ describe("Events integration", () => {
   });
 
   it("POST /api/events returns 201 for an authenticated organizer", async () => {
-    const { cookie } = await registerAndLogin("ORGANIZER");
+    const { cookie } = await registerAndAuthenticate("ORGANIZER");
 
     const response = await request(app)
       .post("/api/events")
@@ -112,7 +122,7 @@ describe("Events integration", () => {
   });
 
   it("PUT /api/events/:id returns 200 for the event owner", async () => {
-    const { cookie } = await registerAndLogin("ORGANIZER");
+    const { cookie } = await registerAndAuthenticate("ORGANIZER");
 
     const createResponse = await request(app)
       .post("/api/events")
@@ -135,8 +145,8 @@ describe("Events integration", () => {
   });
 
   it("PUT /api/events/:id returns 403 for a non-owner", async () => {
-    const owner = await registerAndLogin("ORGANIZER");
-    const intruder = await registerAndLogin("ORGANIZER");
+    const owner = await registerAndAuthenticate("ORGANIZER");
+    const intruder = await registerAndAuthenticate("ORGANIZER");
 
     const createResponse = await request(app)
       .post("/api/events")
@@ -157,7 +167,7 @@ describe("Events integration", () => {
   });
 
   it("PUT /api/events/:id returns 404 when event does not exist", async () => {
-    const { cookie } = await registerAndLogin("ORGANIZER");
+    const { cookie } = await registerAndAuthenticate("ORGANIZER");
 
     const response = await request(app)
       .put("/api/events/unknown-id")
@@ -168,7 +178,7 @@ describe("Events integration", () => {
   });
 
   it("DELETE /api/events/:id returns 204 for the event owner", async () => {
-    const { cookie } = await registerAndLogin("ORGANIZER");
+    const { cookie } = await registerAndAuthenticate("ORGANIZER");
 
     const createResponse = await request(app)
       .post("/api/events")
@@ -185,8 +195,8 @@ describe("Events integration", () => {
   });
 
   it("DELETE /api/events/:id returns 403 for a non-owner", async () => {
-    const owner = await registerAndLogin("ORGANIZER");
-    const intruder = await registerAndLogin("ORGANIZER");
+    const owner = await registerAndAuthenticate("ORGANIZER");
+    const intruder = await registerAndAuthenticate("ORGANIZER");
 
     const createResponse = await request(app)
       .post("/api/events")
@@ -203,7 +213,7 @@ describe("Events integration", () => {
   });
 
   it("DELETE /api/events/:id returns 404 when event does not exist", async () => {
-    const { cookie } = await registerAndLogin("ORGANIZER");
+    const { cookie } = await registerAndAuthenticate("ORGANIZER");
 
     const response = await request(app)
       .delete("/api/events/unknown-id")
