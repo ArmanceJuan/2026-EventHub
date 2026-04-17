@@ -74,9 +74,6 @@ export function RegisterForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-              <div className="hint">
-                Conseil : utilisez une phrase de passe.
-              </div>
             </div>
 
             <div className="field">
