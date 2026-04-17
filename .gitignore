@@ -2,3 +2,7 @@ backend/dist
 frontend/dist
 .env
 backend/.env
+*.pem
+backend/coverage
+coverage
+devops
